@@ -7,6 +7,7 @@
     "expandedProjectPaths": [
         "."
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "": {
             "scaleInDock": 3
@@ -19,11 +20,11 @@
                 2,
                 3
             ],
-            "scale": 3,
-            "selectedLayer": 2,
+            "scale": 1.5,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 168.49999999999997,
-                "y": 95.16666666666667
+                "x": 223.66666666666663,
+                "y": 290.33333333333326
             }
         },
         "Level-01.tmx#tilemap_packed": {
@@ -31,14 +32,14 @@
         },
         "Level-02.tmx": {
             "scale": 1.2825,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
                 "x": 160.23391812865498,
-                "y": 326.3157894736842
+                "y": 233.5282651072125
             }
         },
         "Level-02.tmx#tilemap_packed": {
-            "scaleInDock": 1
+            "scaleInDock": 2
         }
     },
     "last.exportedFilePath": "/Users/dungnb/Documents/FlutterProject/skating_game/assets/tiles",
@@ -54,8 +55,8 @@
     ],
     "project": "skatingtiles.tiled-project",
     "recentFiles": [
-        "Level-02.tmx",
-        "Level-01.tmx"
+        "Level-01.tmx",
+        "Level-02.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {

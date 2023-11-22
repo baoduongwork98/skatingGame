@@ -35,7 +35,7 @@ class GamePlay extends Component with HasGameReference {
       LogicalKeyboardKey.keyR: onRetryPressed,
     },
   );
-  late final _resetTimer = Timer(1, autoStart: false, onTick: _resetPlayer);
+  late final _resetTimer = Timer(0.5, autoStart: false, onTick: _resetPlayer);
   late final World world;
   late final CameraComponent camera;
   late final Player player;
