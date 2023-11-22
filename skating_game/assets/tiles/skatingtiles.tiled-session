@@ -1,0 +1,65 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "Level-01.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 3
+        },
+        "/Users/dungnb/Downloads/ski_master-main/tiled/tilemap_packed.tsx": {
+            "scaleInDock": 1
+        },
+        "Level-01.tmx": {
+            "expandedObjectLayers": [
+                2,
+                3
+            ],
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 168.49999999999997,
+                "y": 95.16666666666667
+            }
+        },
+        "Level-01.tmx#tilemap_packed": {
+            "scaleInDock": 2
+        },
+        "Level-02.tmx": {
+            "scale": 1.2825,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 160.23391812865498,
+                "y": 326.3157894736842
+            }
+        },
+        "Level-02.tmx#tilemap_packed": {
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/dungnb/Documents/FlutterProject/skating_game/assets/tiles",
+    "last.imagePath": "/Users/dungnb/Documents/FlutterProject/skating_game/assets/images/Tilemap",
+    "map.height": 40,
+    "map.lastUsedExportFilter": "All Files (*)",
+    "map.lastUsedFormat": "tmx",
+    "map.tileHeight": 16,
+    "map.tileWidth": 16,
+    "map.width": 20,
+    "openFiles": [
+        "Level-01.tmx"
+    ],
+    "project": "skatingtiles.tiled-project",
+    "recentFiles": [
+        "Level-02.tmx",
+        "Level-01.tmx"
+    ],
+    "tileset.embedInMap": true,
+    "tileset.tileSize": {
+        "height": 16,
+        "width": 16
+    }
+}
