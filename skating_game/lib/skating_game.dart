@@ -4,6 +4,8 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/widgets.dart' hide Route, OverlayRoute;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:skating_game/routes/choose_player.dart';
 import 'package:skating_game/routes/gameplay.dart';
 import 'package:skating_game/routes/level_complete.dart';
 import 'package:skating_game/routes/level_selection.dart';
@@ -11,17 +13,21 @@ import 'package:skating_game/routes/main_menu.dart';
 import 'package:skating_game/routes/pause_menu.dart';
 import 'package:skating_game/routes/retry_menu.dart';
 import 'package:skating_game/routes/settings.dart';
+import 'package:skating_game/utility.dart';
 
 class SkatingGame extends FlameGame
-    with HasKeyboardHandlerComponents, HasCollisionDetection {
+    with TapCallbacks, HasKeyboardHandlerComponents, HasCollisionDetection {
   final musicValueNotifier = ValueNotifier(true);
   final sfxValueNotifier = ValueNotifier(true);
-
+  late int currentLevel = 0;
+  late String keyCurrentLevel = 'currentLevel';
   late final _routes = <String, Route>{
     MainMenu.id: OverlayRoute(
       (context, game) => MainMenu(
-        onPlayPressed: () => _routeById(LevelSelection.id),
+        onPlayPressed: () =>
+            _routeById(LevelSelection.id), // _routeById(LevelSelection.id),
         onSettingsPressed: () => _routeById(Settings.id),
+        onChoosePlayerPressed: () => _routeById(ChoosePlayer.id),
       ),
     ),
     Settings.id: OverlayRoute(
@@ -37,6 +43,7 @@ class SkatingGame extends FlameGame
       (context, game) => LevelSelection(
         onLevelSelected: _startLevel,
         goBackPressed: _popRoute,
+        currentLevel: currentLevel,
       ),
     ),
     PauseMenu.id: OverlayRoute(
@@ -59,6 +66,11 @@ class SkatingGame extends FlameGame
         onExitPressed: _exitToMainMenu,
       ),
     ),
+    ChoosePlayer.id: OverlayRoute(
+      (context, game) => ChoosePlayer(
+        onBackPressed: _exitToMainMenu,
+      ),
+    ),
   };
 
   late final _router = RouterComponent(
@@ -71,7 +83,9 @@ class SkatingGame extends FlameGame
 
   @override
   Future<void> onLoad() async {
+    await images.loadAllImages();
     await add(_router);
+    currentLevel = await Utility().getStoreInt(keyCurrentLevel) ?? currentLevel;
   }
 
   void _routeById(String id) {
@@ -82,13 +96,14 @@ class SkatingGame extends FlameGame
     _router.pop();
   }
 
-  void _startLevel(int levelIndex) {
-    print('start level $levelIndex');
+  void _startLevel(int levelIndex) async {
+    if (levelIndex >= currentLevel)
+      Utility().saveStoreInt(keyCurrentLevel, levelIndex);
     _router.pop();
     _router.pushReplacement(
       Route(
         () => GamePlay(
-          levelIndex,
+          levelIndex + 1,
           onPausePressed: _pauseGame,
           onLevelComplete: _showLevelCompleteMenu,
           onRetryPressed: _showRetryMenu,
@@ -99,27 +114,29 @@ class SkatingGame extends FlameGame
     );
   }
 
-  void _restartLevel() {
+  void _restartLevel() async {
     final gameplay = findByKeyName<GamePlay>(GamePlay.id);
 
     if (gameplay != null) {
-      _startLevel(gameplay.currentLevel);
+      currentLevel = await Utility().getStoreInt(keyCurrentLevel);
+      _startLevel(currentLevel);
       resumeEngine();
     }
   }
 
-  void _startNextLevel() {
+  void _startNextLevel() async {
     final gameplay = findByKeyName<GamePlay>(GamePlay.id);
 
     if (gameplay != null) {
-      _startLevel(gameplay.currentLevel + 1);
+      currentLevel += 1;
+      _startLevel(currentLevel);
+      Utility().saveStoreInt(keyCurrentLevel, currentLevel);
       resumeEngine();
     }
   }
 
   void _pauseGame() {
-    _router.pushNamed(PauseMenu.id);
-    pauseEngine();
+    _pushRouter(PauseMenu.id);
   }
 
   void _resumeGame() {
@@ -133,11 +150,15 @@ class SkatingGame extends FlameGame
   }
 
   void _showLevelCompleteMenu() {
-    pauseEngine();
-    _router.pushNamed(LevelComplete.id);
+    _pushRouter(LevelComplete.id);
   }
 
   void _showRetryMenu() {
-    _router.pushNamed(RetryMenu.id);
+    _pushRouter(RetryMenu.id);
+  }
+
+  void _pushRouter(String id) {
+    pauseEngine();
+    _router.pushNamed(id);
   }
 }

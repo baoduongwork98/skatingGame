@@ -1,11 +1,15 @@
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:skating_game/skating_game.dart';
 
 class LevelSelection extends StatelessWidget {
   const LevelSelection({
     super.key,
+    this.currentLevel,
     this.onLevelSelected,
     this.goBackPressed,
   });
+  final currentLevel;
   static const id = 'LevelSelection';
   final ValueChanged<int>? onLevelSelected;
   final VoidCallback? goBackPressed;
@@ -33,7 +37,9 @@ class LevelSelection extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     return OutlinedButton(
-                        onPressed: () => onLevelSelected?.call(index + 1),
+                        onPressed: index <= currentLevel
+                            ? () => onLevelSelected?.call(index)
+                            : null,
                         child: Text('Level ${index + 1}'));
                   }),
             ),

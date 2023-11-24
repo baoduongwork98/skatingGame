@@ -5,10 +5,12 @@ class MainMenu extends StatelessWidget {
     super.key,
     this.onPlayPressed,
     this.onSettingsPressed,
+    this.onChoosePlayerPressed,
   });
   static const id = 'MainMenu';
   final VoidCallback? onPlayPressed;
   final VoidCallback? onSettingsPressed;
+  final VoidCallback? onChoosePlayerPressed;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +24,13 @@ class MainMenu extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: onPlayPressed,
                 child: const Text('Start Game'),
+              ),
+            ),
+            SizedBox(
+              width: 150,
+              child: OutlinedButton(
+                onPressed: onChoosePlayerPressed,
+                child: const Text('Choose Player'),
               ),
             ),
             SizedBox(

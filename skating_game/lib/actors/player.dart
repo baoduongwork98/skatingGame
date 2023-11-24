@@ -6,6 +6,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/foundation.dart';
+import 'package:skating_game/actors/rock_component.dart';
 import 'package:skating_game/actors/snowman.dart';
 import 'package:skating_game/routes/gameplay.dart';
 
@@ -18,6 +19,7 @@ class Player extends PositionComponent
         ) {
     size = Vector2.all(16);
   }
+  late double hAxis;
   final SpriteComponent _body;
   final _moveDirection = Vector2(1, 1);
   static const _maxSpeed = 80;
@@ -26,15 +28,14 @@ class Player extends PositionComponent
   @override
   FutureOr<void> onLoad() async {
     await add(_body);
-    await add(
-        CircleHitbox.relative(1, parentSize: _body.size, anchor: Anchor.center)
-          ..debugMode = true);
+    await add(CircleHitbox.relative(1,
+        parentSize: _body.size, anchor: Anchor.center));
     return super.onLoad();
   }
 
   @override
   void update(double dt) {
-    _moveDirection.x = ancestor.input.hAxis;
+    _moveDirection.x = ancestor.hAxis; //ancestor.input.hAxis;
     _moveDirection.y = 1;
 
     _moveDirection.normalize();
@@ -50,6 +51,8 @@ class Player extends PositionComponent
       Set<Vector2> intersectionPoints, PositionComponent other) {
     if (other is SnowMan) {
       other.collect();
+    } else if (other is RockComponent) {
+      other.collisionPlayer();
     }
     super.onCollisionStart(intersectionPoints, other);
   }

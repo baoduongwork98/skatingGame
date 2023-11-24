@@ -1,20 +1,22 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:skating_game/routes/gameplay.dart';
 
-class SnowMan extends PositionComponent
+class RockComponent extends PositionComponent
     with HasGameReference, HasAncestor<GamePlay> {
-  SnowMan({super.position, required Sprite sprite})
+  RockComponent(
+      {super.position, required Sprite sprite, required this.onRetryPressed})
       : _body = SpriteComponent(
           sprite: sprite,
           anchor: Anchor.center,
         ) {
     size = Vector2.all(16);
   }
-
+  final VoidCallback onRetryPressed;
   final SpriteComponent _body;
   @override
   FutureOr<void> onLoad() async {
@@ -26,14 +28,7 @@ class SnowMan extends PositionComponent
     return super.onLoad();
   }
 
-  void collect() {
-    addAll([
-      OpacityEffect.fadeOut(LinearEffectController(0.4),
-          target: _body, onComplete: removeFromParent),
-      ScaleEffect.by(
-        Vector2.all(1.2),
-        LinearEffectController(0.4),
-      )
-    ]);
+  void collisionPlayer() {
+    onRetryPressed.call();
   }
 }
