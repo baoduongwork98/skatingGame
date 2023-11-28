@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/material.dart' hide Route, OverlayRoute;
 import 'package:flutter/widgets.dart' hide Route, OverlayRoute;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skating_game/routes/choose_player.dart';
@@ -11,23 +14,24 @@ import 'package:skating_game/routes/level_complete.dart';
 import 'package:skating_game/routes/level_selection.dart';
 import 'package:skating_game/routes/main_menu.dart';
 import 'package:skating_game/routes/pause_menu.dart';
+import 'package:skating_game/routes/payment_menu.dart';
 import 'package:skating_game/routes/retry_menu.dart';
 import 'package:skating_game/routes/settings.dart';
 import 'package:skating_game/utility.dart';
 
 class SkatingGame extends FlameGame
     with TapCallbacks, HasKeyboardHandlerComponents, HasCollisionDetection {
+  int score = 0;
+  int countTurns = 0;
   final musicValueNotifier = ValueNotifier(true);
   final sfxValueNotifier = ValueNotifier(true);
-  late int currentLevel = 0;
-  late String keyCurrentLevel = 'currentLevel';
   late final _routes = <String, Route>{
     MainMenu.id: OverlayRoute(
       (context, game) => MainMenu(
-        onPlayPressed: () =>
-            _routeById(LevelSelection.id), // _routeById(LevelSelection.id),
+        countTurns: countTurns,
+        onPlayPressed: () => playGame(),
         onSettingsPressed: () => _routeById(Settings.id),
-        onChoosePlayerPressed: () => _routeById(ChoosePlayer.id),
+        paymentPressed: () => _routeById(PaymentMenu.id),
       ),
     ),
     Settings.id: OverlayRoute(
@@ -43,7 +47,6 @@ class SkatingGame extends FlameGame
       (context, game) => LevelSelection(
         onLevelSelected: _startLevel,
         goBackPressed: _popRoute,
-        currentLevel: currentLevel,
       ),
     ),
     PauseMenu.id: OverlayRoute(
@@ -64,6 +67,7 @@ class SkatingGame extends FlameGame
       (context, game) => RetryMenu(
         onRetryPressed: _restartLevel,
         onExitPressed: _exitToMainMenu,
+        gameScore: score,
       ),
     ),
     ChoosePlayer.id: OverlayRoute(
@@ -71,6 +75,11 @@ class SkatingGame extends FlameGame
         onBackPressed: _exitToMainMenu,
       ),
     ),
+    PaymentMenu.id: OverlayRoute(
+      (context, game) => PaymentMenu(
+        onBackPressed: _exitToMainMenu,
+      ),
+    )
   };
 
   late final _router = RouterComponent(
@@ -85,7 +94,6 @@ class SkatingGame extends FlameGame
   Future<void> onLoad() async {
     await images.loadAllImages();
     await add(_router);
-    currentLevel = await Utility().getStoreInt(keyCurrentLevel) ?? currentLevel;
   }
 
   void _routeById(String id) {
@@ -96,14 +104,12 @@ class SkatingGame extends FlameGame
     _router.pop();
   }
 
-  void _startLevel(int levelIndex) async {
-    if (levelIndex >= currentLevel)
-      Utility().saveStoreInt(keyCurrentLevel, levelIndex);
-    _router.pop();
+  void playGame() async {
+    if (countTurns <= 0) {}
     _router.pushReplacement(
       Route(
         () => GamePlay(
-          levelIndex + 1,
+          musicValueNotifier: musicValueNotifier,
           onPausePressed: _pauseGame,
           onLevelComplete: _showLevelCompleteMenu,
           onRetryPressed: _showRetryMenu,
@@ -114,23 +120,34 @@ class SkatingGame extends FlameGame
     );
   }
 
+  void _startLevel(int levelIndex) async {
+    _router.pop();
+    playGame();
+  }
+
   void _restartLevel() async {
     final gameplay = findByKeyName<GamePlay>(GamePlay.id);
 
     if (gameplay != null) {
-      currentLevel = await Utility().getStoreInt(keyCurrentLevel);
-      _startLevel(currentLevel);
+      _startLevel(0);
       resumeEngine();
     }
+  }
+
+  Future<int> getScore() async {
+    final gameplay = findByKeyName<GamePlay>(GamePlay.id);
+
+    if (gameplay != null) {
+      score = gameplay.score;
+    }
+    return score;
   }
 
   void _startNextLevel() async {
     final gameplay = findByKeyName<GamePlay>(GamePlay.id);
 
     if (gameplay != null) {
-      currentLevel += 1;
-      _startLevel(currentLevel);
-      Utility().saveStoreInt(keyCurrentLevel, currentLevel);
+      _startLevel(0);
       resumeEngine();
     }
   }
@@ -154,6 +171,8 @@ class SkatingGame extends FlameGame
   }
 
   void _showRetryMenu() {
+    if (musicValueNotifier.value) FlameAudio.play('disappear.wav', volume: 1.0);
+    getScore();
     _pushRouter(RetryMenu.id);
   }
 

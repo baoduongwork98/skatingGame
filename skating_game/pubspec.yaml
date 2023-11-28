@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   flame: ^1.10.1
   flame_tiled: ^1.16.0
+  flame_audio: ^2.1.2
+  onepref: ^0.0.14
   shared_preferences: ^2.2.2
 
 dev_dependencies:
@@ -22,7 +24,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/audio/
     - assets/images/Tilemap/
     - assets/images/HUD/
+    - assets/images/Background/
     - assets/tiles/
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:flame/collisions.dart';
@@ -6,7 +7,9 @@ import 'package:flame/components.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/src/game/flame_game.dart';
+import 'package:flame/text.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:skating_game/actors/rock_component.dart';
 import 'package:skating_game/actors/snowman.dart';
@@ -17,21 +20,22 @@ import 'package:skating_game/routes/pause_button.dart';
 
 class GamePlay extends Component with HasGameReference {
   late double hAxis = 0.0;
+  double soundVolume = 1.0;
   late bool leftPressed = false;
   late bool rightPressed = false;
-  GamePlay(
-    this.currentLevel, {
+  GamePlay({
     super.key,
+    required this.musicValueNotifier,
     required this.onPausePressed,
     required this.onLevelComplete,
     required this.onRetryPressed,
   });
   static const id = 'GamePlay';
 
-  final int currentLevel;
   final VoidCallback onPausePressed;
   final VoidCallback onLevelComplete;
   final VoidCallback onRetryPressed;
+  final ValueListenable<bool> musicValueNotifier;
   late final input = Input(
     keyCallbacks: {
       LogicalKeyboardKey.keyP: onPausePressed,
@@ -43,20 +47,22 @@ class GamePlay extends Component with HasGameReference {
   late final CameraComponent camera;
   late final Player player;
 
+  late final TextComponent scoreText;
+  late int score;
   var _leftInput = 0.0;
   var _rightInput = 0.0;
   static const _sensitivity = 2.0;
   @override
   void update(double dt) {
     handleMoving(dt);
+    score += (60 * dt).toInt();
+    scoreText.text = score.toString();
     super.update(dt);
   }
 
   @override
   FutureOr<void> onLoad() async {
-    final map =
-        // await TiledComponent.load('Level-0$currentLevel.tmx', Vector2.all(16));
-        await TiledComponent.load('Level-00.tmx', Vector2.all(16));
+    final map = await TiledComponent.load('Level-00.tmx', Vector2.all(16));
 
     await setupWorldAndCamera(map);
     await setupCompoment(map);
@@ -114,17 +120,13 @@ class GamePlay extends Component with HasGameReference {
       ),
       size: Vector2.all(30),
     );
-    add(pauseButton);
+    await add(pauseButton);
     //point
-    final textPoint = TextComponent(
-      text: 'Hello, Flame',
-    )
-      ..anchor = Anchor.topCenter
-      ..x = 0 // size is a property from game
-      ..y = 32;
-
-    add(textPoint);
-    //
+    final style = TextStyle(
+      color: BasicPalette.red.color,
+      fontSize: 30.0, // Change the font size here
+    );
+    final regular = TextPaint(style: style);
 
     camera = CameraComponent.withFixedResolution(
       world: world,
@@ -132,6 +134,18 @@ class GamePlay extends Component with HasGameReference {
       height: 180,
     );
     await add(camera);
+    print('game.size.x ${game.size.x}');
+    score = 0;
+    scoreText = TextComponent(
+        text: score.toString(),
+        textRenderer: regular,
+        position: Vector2(
+          30,
+          30,
+        ),
+        priority: 100);
+    await add(scoreText);
+    //
   }
 
   Future<void> setupTrigger(TiledComponent<FlameGame<World>> map) async {

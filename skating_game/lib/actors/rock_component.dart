@@ -6,8 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:skating_game/routes/gameplay.dart';
 
-class RockComponent extends PositionComponent
-    with HasGameReference, HasAncestor<GamePlay> {
+class RockComponent extends PositionComponent {
   RockComponent(
       {super.position, required Sprite sprite, required this.onRetryPressed})
       : _body = SpriteComponent(

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:skating_game/routes/gameplay.dart';
 
 class SnowMan extends PositionComponent
@@ -27,6 +29,8 @@ class SnowMan extends PositionComponent
   }
 
   void collect() {
+    if (ancestor.musicValueNotifier.value)
+      FlameAudio.play('collect_snowman.wav', volume: ancestor.soundVolume);
     addAll([
       OpacityEffect.fadeOut(LinearEffectController(0.4),
           target: _body, onComplete: removeFromParent),
